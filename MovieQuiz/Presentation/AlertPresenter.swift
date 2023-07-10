@@ -34,6 +34,5 @@ extension AlertPresenter: AlertPresenterProtocol {
         alert.addAction(action)
         // показываем всплывающее окно
         viewControllerDelegate?.present(alert, animated: true)
-        //self.present(alert, animated: true, completion: nil)
     }
 }

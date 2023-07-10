@@ -6,7 +6,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var currentQuestionIndex = 0
     // переменная со счётчиком правильных ответов, начальное значение закономерно 0
     private var correctAnswers = 0
-    private var readyToAsk: Bool = false //флаг готовности принимать ответы
     
     private let questionsAmount: Int = 10
     private var questionFactory: QuestionFactoryProtocol?
@@ -14,9 +13,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var alertPresenter: AlertPresenterProtocol?
     private var statisticService: StatisticServiceProtocol?
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+            return .lightContent  // Установка стиля статус-бара
+        }
     // MARK: - Actions
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        readyToAsk = false //блокируем возможность давать ответы до появления вопроса
         guard let currentQuestion = currentQuestion else {
             //stop
             return
@@ -27,7 +28,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        readyToAsk = false //блокируем возможность давать ответы до появления вопроса
         guard let currentQuestion = currentQuestion else { return }
         //let currentQuestion = questions[currentQuestionIndex]
         let givenAnswer = true
@@ -40,6 +40,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private var noButton: UIButton!
     
     @IBOutlet private var yesButton: UIButton!
+    @IBOutlet var activityIndicator: UIActivityIndicatorView!
+    
     
     // MARK: - Private functions
     
@@ -49,11 +51,51 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         imageView.layer.masksToBounds = true // даём разрешение на рисование рамки
         imageView.layer.borderWidth = 8 // толщина рамки
         imageView.layer.cornerRadius = 20
-        questionFactory = QuestionFactory(delegate: self)
-        questionFactory?.requestNextQuestion()
-        alertPresenter = AlertPresenter(viewController: self)
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        showLoadingIndicator()
+        questionFactory?.loadData()
+        alertPresenter = AlertPresenter(viewController: self) //??? нужен ли?
         statisticService = StatisticServiceImplementation()
     }
+    
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false // говорим, что индикатор загрузки не скрыт
+        activityIndicator.startAnimating() // включаем анимацию
+    }
+    
+    private func hideLoadingIndicator() {
+        activityIndicator.isHidden = true // говорим, что индикатор загрузки не скрыт
+        activityIndicator.stopAnimating() // выключаем анимацию
+    }
+    
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator() // скрываем индикатор загрузки
+        
+        let model = AlertModel(title: "Ошибка",
+                                   message: message,
+                                   buttonText: "Попробовать еще раз") { [weak self] in
+                guard let self = self else { return }
+                
+                self.currentQuestionIndex = 0
+                self.correctAnswers = 0
+                
+                self.questionFactory?.requestNextQuestion()
+            }
+            
+        alertPresenter?.showAlert(alertModel: model)
+        showLoadingIndicator()
+        questionFactory?.loadData()
+    }
+    
+    func didFailToLoadData(with error: Error) {
+        showNetworkError(message: error.localizedDescription) // возьмём в качестве сообщения описание ошибки
+    }
+    
+    func didLoadDataFromServer() {
+        hideLoadingIndicator()
+        questionFactory?.requestNextQuestion()
+    }
+    
     // MARK: - QuestionFactoryDelegate
 
     func didReceiveNextQuestion(question: QuizQuestion?) {
@@ -69,16 +111,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     // метод конвертации, который принимает моковый вопрос и возвращает вью модель для экрана вопроса
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        // Попробуйте написать код конвертации самостоятельно
-        //Создаём константу convertedData и вызываем конструктор QuizStepViewModel
-        let convertedData = QuizStepViewModel(
-            //Инициализируем картинку с помощью конструктора UIImage(named: ); если картинки с таким названием не найдётся,подставляем пустую
-            image: UIImage(named: model.image) ?? UIImage(),
-            //Просто забираем уже готовый вопрос из мокового вопроса
-            question: model.text,
-            //Высчитываем номер вопроса с помощью переменной текущего вопроса currentQuestionIndex и массива со списком вопросов questions. Ииспользуем интерполяцию, то есть подставляем результат в строку, чтобы получилось "X/10"
-            questionNumber: "\(currentQuestionIndex + 1) / \(questionsAmount)")
-        return convertedData
+        
+        return QuizStepViewModel(
+                image: UIImage(data: model.image) ?? UIImage(),
+                question: model.text,
+                questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
     // приватный метод вывода на экран вопроса, который принимает на вход вью модель вопроса и ничего не возвращает
     private func showQuizStep(quiz step: QuizStepViewModel) {
@@ -86,7 +123,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         counterLabel.text = step.questionNumber
         imageView.image = step.image
         textLabel.text = step.question
-        readyToAsk = true //мы готовы принимать ответы
+        
     }
     
     // приватный метод, который меняет цвет рамки
@@ -98,9 +135,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             correctAnswers += 1
         }
         // метод красит рамку
-/*        imageView.layer.masksToBounds = true // даём разрешение на рисование рамки
-        imageView.layer.borderWidth = 8 // толщина рамки
-        imageView.layer.cornerRadius = 20*/
         imageView.layer.borderWidth = 8
         imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
         // запускаем задачу через 1 секунду c помощью диспетчера задач
@@ -125,12 +159,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         } else { // 2
             currentQuestionIndex += 1
             questionFactory?.requestNextQuestion()
-           /* if let nextQuestion = questionFactory.requestNextQuestion() {
-                currentQuestion = nextQuestion
-                let viewModel = convert(model: nextQuestion)
-                showQuizStep(quiz: viewModel)
-            }*/
-            //let nextQuestion = questions[currentQuestionIndex]
         }
         yesButton.isEnabled = true
         noButton.isEnabled = true
