@@ -3,7 +3,7 @@
     <device id="retina6_1" orientation="portrait" appearance="dark"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21678"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -36,6 +36,7 @@
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" text="1/10" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pPl-zG-e7t" userLabel="Index Label">
                                         <rect key="frame" x="338" y="0.0" width="36" height="23.5"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="Index"/>
                                         <fontDescription key="fontDescription" name="YSDisplay-Medium" family="YS Display" pointSize="20"/>
                                         <color key="textColor" name="YP White"/>
                                         <nil key="highlightedColor"/>
@@ -45,6 +46,7 @@
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="WsL-Oj-KV9" userLabel="Preview Image">
                                 <rect key="frame" x="20" y="96.5" width="374" height="561"/>
                                 <color key="backgroundColor" name="YP White"/>
+                                <accessibility key="accessibilityConfiguration" identifier="Poster"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="WsL-Oj-KV9" secondAttribute="height" multiplier="2:3" id="Stb-M7-2gC"/>
                                 </constraints>
@@ -60,6 +62,7 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Guc-J1-ufj" userLabel="No button">
                                         <rect key="frame" x="0.0" y="0.0" width="177" height="60"/>
                                         <color key="backgroundColor" name="YP White"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="No"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="60" id="WA1-5l-DZi"/>
                                         </constraints>
@@ -80,6 +83,7 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XU9-RI-Yzd" userLabel="Yes button">
                                         <rect key="frame" x="197" y="0.0" width="177" height="60"/>
                                         <color key="backgroundColor" name="YP White"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="Yes"/>
                                         <fontDescription key="fontDescription" name="YSDisplay-Medium" family="YS Display" pointSize="20"/>
                                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                         <state key="normal" title="Да">
@@ -105,11 +109,16 @@
                                 <color key="textColor" name="YP White"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="iCq-jL-0g1">
+                                <rect key="frame" x="197" y="438" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black"/>
                         <constraints>
                             <constraint firstItem="gVB-fz-j4N" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="32H-DR-hhm"/>
+                            <constraint firstItem="iCq-jL-0g1" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Beg-uH-2DX"/>
+                            <constraint firstItem="iCq-jL-0g1" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="CVQ-Tx-x5t"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="tly-aU-bYM" secondAttribute="bottom" constant="92" id="FL9-Yy-mOS"/>
                             <constraint firstItem="tly-aU-bYM" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="62" id="Jsq-z1-RLp"/>
                             <constraint firstItem="tly-aU-bYM" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="KLl-UJ-UTt"/>
@@ -125,6 +134,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="iCq-jL-0g1" id="o2j-jY-udn"/>
                         <outlet property="counterLabel" destination="pPl-zG-e7t" id="BjA-GP-eWu"/>
                         <outlet property="imageView" destination="WsL-Oj-KV9" id="1LI-mA-Sdd"/>
                         <outlet property="noButton" destination="Guc-J1-ufj" id="B4h-37-Ith"/>

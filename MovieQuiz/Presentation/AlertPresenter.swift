@@ -26,6 +26,7 @@ extension AlertPresenter: AlertPresenterProtocol {
             title: alertModel.title,        // заголовок всплывающего окна
             message: alertModel.message,       // текст во всплывающем окне
             preferredStyle: .alert)     // preferredStyle может быть .alert или .actionSheet
+        alert.view.accessibilityIdentifier = "Game results"
         // константа с кнопкой для системного алерта
         let action = UIAlertAction(title: alertModel.buttonText, style: .default) { _ in
             alertModel.completion()
@@ -33,7 +34,6 @@ extension AlertPresenter: AlertPresenterProtocol {
         // добавляем в алерт кнопку
         alert.addAction(action)
         // показываем всплывающее окно
-        viewControllerDelegate?.present(alert, animated: true)
-        //self.present(alert, animated: true, completion: nil)
+        viewControllerDelegate?.present(alert, animated: true, completion: nil)
     }
 }
